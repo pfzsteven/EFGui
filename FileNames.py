@@ -1,0 +1,7 @@
+FILE_LOCALLY_JSON = "locally.json"
+FILE_CONFIG_JSON = "config.json"
+FILE_SCRIPT_CONFIG_JSON = "script_config.json"
+FILE_SCRIPT_BACK_CONFIG_JSON = "script_config_back.json"
+FILE_SCRIPT_TEXT = "script.txt"
+FILE_SCRIPT_BACK_TEXT = "script_back.txt"
+FILE_DIR_RES = "res"
