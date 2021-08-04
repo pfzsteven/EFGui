@@ -104,6 +104,7 @@ def onTreeViewDoubleClick(qmodelIndex):
 def initTreeView():
     ui_dialog.treeView.clicked.connect(onTreeViewSingleClick)
     ui_dialog.treeView.doubleClicked.connect(onTreeViewDoubleClick)
+    # ui_dialog.treeView.contextMenuEvent.connect()
     pass
 
 
