@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets
 
 import FileNames
 from main_editor import Ui_Dialog
+from submodel.subEditorGui import LocallyFileEditor
 from view import ClickEvent, FileSelector
 
 # 当前工作路径
@@ -38,11 +39,22 @@ def initProject():
     pass
 
 
+def file2Json(path):
+    with open(path) as f:
+        data = f.read()
+        f.close()
+    return data
+    pass
+
+
 def onTreeViewDoubleClick(qmodelIndex):
-    (parent, file_name) = os.path.split(explorerModel.filePath(qmodelIndex))
+    path = explorerModel.filePath(qmodelIndex)
+    (_, ext) = os.path.splitext(path)
+    (parent, file_name) = os.path.split(path)
     print("click file parent %s" % parent)
     print("click file name %s" % file_name)
-
+    if file_name == FileNames.FILE_LOCALLY_JSON:
+        LocallyFileEditor().show(file2Json(path))
     pass
 
 
