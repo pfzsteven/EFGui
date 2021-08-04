@@ -2,7 +2,6 @@ import os
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QFileSystemModel
 
 import FileNames
 from main_editor import Ui_Dialog
@@ -19,25 +18,39 @@ def openProject():
     # 展示文件弹窗
     global currentWorkProject
     currentWorkProject = FileSelector.openDirectory()
+    print("currentWorkProject %s" % currentWorkProject)
     global ui_dialog
-    treeMode = QFileSystemModel()
-    treeMode.setRootPath(currentWorkProject)
-    ui_dialog.treeView.setModel(treeMode)
+    explorerModel = QtWidgets.QFileSystemModel()
+    explorerModel.setRootPath(currentWorkProject)
+    ui_dialog.treeView.setModel(explorerModel)
+    model_index = explorerModel.index(os.path.dirname(currentWorkProject))
+    ui_dialog.treeView.setRootIndex(model_index)
+
+    for i in range(1, explorerModel.columnCount()):
+        ui_dialog.treeView.hideColumn(i)
+        pass
+
     pass
 
 
 def initProject():
-    os.open(FileNames.FILE_LOCALLY_JSON, "w")
+    os.open(FileNames.FILE_LOCALLY_JSON, os.O_WRONLY)
+    pass
+
+
+def initTreeView():
     pass
 
 
 def initWidgets():
+    initTreeView()
     global ui_dialog
     # open project button
     ClickEvent.setOnClickListener(ui_dialog.btn_open_proj, openProject)
     # init project files
     ClickEvent.setOnClickListener(ui_dialog.btn_init, initProject)
     pass
+
 
 pass
 

@@ -15,10 +15,6 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(722, 640)
-        self.treeView = QtWidgets.QTreeView(Dialog)
-        self.treeView.setGeometry(QtCore.QRect(10, 50, 281, 551))
-        self.treeView.setAutoFillBackground(False)
-        self.treeView.setObjectName("treeView")
         self.scrollArea = QtWidgets.QScrollArea(Dialog)
         self.scrollArea.setGeometry(QtCore.QRect(300, 50, 401, 551))
         self.scrollArea.setWidgetResizable(True)
@@ -40,6 +36,9 @@ class Ui_Dialog(object):
         self.btn_import_zip.setGeometry(QtCore.QRect(220, 10, 121, 41))
         self.btn_import_zip.setAutoDefault(False)
         self.btn_import_zip.setObjectName("btn_import_zip")
+        self.treeView = QtWidgets.QTreeView(Dialog)
+        self.treeView.setGeometry(QtCore.QRect(10, 50, 281, 551))
+        self.treeView.setObjectName("treeView")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
