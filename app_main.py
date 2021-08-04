@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -11,6 +12,8 @@ from view import ClickEvent, FileSelector
 # 当前工作路径
 currentWorkProject = None
 
+text_cache = json.loads("{}")
+
 
 def isWorkProjectSet():
     return currentWorkProject is not None
@@ -19,7 +22,11 @@ def isWorkProjectSet():
 def openProject():
     # 展示文件弹窗
     global currentWorkProject
-    currentWorkProject = FileSelector.openDirectory() + "/"
+    currentWorkProject = FileSelector.openDirectory()
+    if not currentWorkProject.endswith("/"):
+        currentWorkProject = currentWorkProject + "/"
+        pass
+    pass
     global explorerModel
     explorerModel = QtWidgets.QFileSystemModel()
     explorerModel.setRootPath(currentWorkProject)
@@ -40,9 +47,14 @@ def initProject():
 
 
 def file2String(path):
+    cache = text_cache.get(path)
+    if cache is not None:
+        return cache
     with open(path) as f:
         data = f.read()
         f.close()
+        pass
+    text_cache[path] = data
     return data
 
 
@@ -113,7 +125,7 @@ if __name__ == '__main__':
     ui_dialog = Ui_Dialog()
     ui_dialog.setupUi(form)
 
-    text_view = QtWidgets.QTextEdit()
+    text_view = QtWidgets.QLabel()
     ui_dialog.scrollArea.setWidget(text_view)
     initWidgets()
     form.show()

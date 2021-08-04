@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 from PyQt5.QtWidgets import QDialog
 
+import FileNames
 from submodel.table_view import LocallyTableModel
 
 
@@ -46,6 +47,8 @@ class LocallyFileEditor(BaseEditor):
         print(items)
         model = LocallyTableModel(data=items)
         ui_dialog.tableView.setModel(model)
+
+        dialog.setWindowTitle(FileNames.FILE_LOCALLY_JSON)
         dialog.exec()
         pass
 
