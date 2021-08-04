@@ -31,7 +31,7 @@ class LocallyFileEditor(BaseEditor):
         from submodel.locally_editor import Ui_Dialog
         dialog = QDialog()
         ui_dialog = Ui_Dialog()
-        ui_dialog.setupUi(self)
+        ui_dialog.setupUi(dialog)
         # print("edit locally json:%s" % json_str)
         items = []
         j = json.loads(json_str)
@@ -52,5 +52,11 @@ class LocallyFileEditor(BaseEditor):
 
 # gogogo 脚本编辑
 class GogogoEditor(BaseEditor):
+    def show(self, json_str=None):
+        pass
+
+
+# 普通文本编辑
+class SimpleEditor(BaseEditor):
     def show(self, json_str=None):
         pass

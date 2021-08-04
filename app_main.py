@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets
 
 import FileNames
 from main_editor import Ui_Dialog
-from submodel.subEditorGui import LocallyFileEditor
+from submodel.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
 from view import ClickEvent, FileSelector
 
 # 当前工作路径
@@ -39,11 +39,27 @@ def initProject():
     pass
 
 
-def file2Json(path):
+def file2String(path):
     with open(path) as f:
         data = f.read()
         f.close()
     return data
+
+
+def onTreeViewSingleClick(qmodelIndex):
+    path = explorerModel.filePath(qmodelIndex)
+    (_, ext) = os.path.splitext(path)
+    (parent, file_name) = os.path.split(path)
+    print("click file parent %s" % parent)
+    print("click file name %s" % file_name)
+    print("click file ext %d" % len(ext))
+
+    if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
+        text_view.setText("")
+        pass
+    else:
+        text_view.setText((file2String(path)))
+        pass
     pass
 
 
@@ -51,14 +67,30 @@ def onTreeViewDoubleClick(qmodelIndex):
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
-    print("click file parent %s" % parent)
-    print("click file name %s" % file_name)
-    if file_name == FileNames.FILE_LOCALLY_JSON:
-        LocallyFileEditor().show(file2Json(path))
-    pass
+    print("double click file parent %s" % parent)
+    print("double click file name %s" % file_name)
+    print("double click file ext %d" % len(ext))
+
+    if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
+        pass
+    else:
+        if file_name == FileNames.FILE_LOCALLY_JSON:
+            LocallyFileEditor().show(file2String(path))
+        elif file_name == FileNames.FILE_SCRIPT_TEXT or file_name == FileNames.FILE_SCRIPT_BACK_TEXT:
+            GogogoEditor().show(file2String(path))
+            pass
+        else:
+            if file_name.count("png") > 0:
+                pass
+            else:
+                SimpleEditor().show(file2String(path))
+                pass
+            pass
+        pass
 
 
 def initTreeView():
+    ui_dialog.treeView.clicked.connect(onTreeViewSingleClick)
     ui_dialog.treeView.doubleClicked.connect(onTreeViewDoubleClick)
     pass
 
@@ -80,6 +112,9 @@ if __name__ == '__main__':
     form = QtWidgets.QWidget()
     ui_dialog = Ui_Dialog()
     ui_dialog.setupUi(form)
+
+    text_view = QtWidgets.QTextEdit()
+    ui_dialog.scrollArea.setWidget(text_view)
     initWidgets()
     form.show()
     sys.exit(app.exec_())
