@@ -20,6 +20,12 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, parent):
         return len(self.header)
 
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            self._data[index.row()][index.column()] = value
+            return True
+        return False
+
     def data(self, index, role):
         if not index.isValid():
             return
@@ -27,7 +33,7 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
         row = index.row()
         column = index.column()
 
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             row_data = self._data[row]
             if column == 0:
                 return row_data[0]
