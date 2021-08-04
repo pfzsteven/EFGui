@@ -7,6 +7,7 @@ import FileNames
 from main_editor import Ui_Dialog
 from view import ClickEvent, FileSelector
 
+# 当前工作路径
 currentWorkProject = None
 
 
@@ -17,13 +18,12 @@ def isWorkProjectSet():
 def openProject():
     # 展示文件弹窗
     global currentWorkProject
-    currentWorkProject = FileSelector.openDirectory()
-    print("currentWorkProject %s" % currentWorkProject)
-    global ui_dialog
+    currentWorkProject = FileSelector.openDirectory() + "/"
+    global explorerModel
     explorerModel = QtWidgets.QFileSystemModel()
     explorerModel.setRootPath(currentWorkProject)
     ui_dialog.treeView.setModel(explorerModel)
-    model_index = explorerModel.index(os.path.dirname(currentWorkProject))
+    model_index = explorerModel.index(currentWorkProject)
     ui_dialog.treeView.setRootIndex(model_index)
 
     for i in range(1, explorerModel.columnCount()):
@@ -38,7 +38,16 @@ def initProject():
     pass
 
 
+def onTreeViewDoubleClick(qmodelIndex):
+    (parent, file_name) = os.path.split(explorerModel.filePath(qmodelIndex))
+    print("click file parent %s" % parent)
+    print("click file name %s" % file_name)
+
+    pass
+
+
 def initTreeView():
+    ui_dialog.treeView.doubleClicked.connect(onTreeViewDoubleClick)
     pass
 
 
