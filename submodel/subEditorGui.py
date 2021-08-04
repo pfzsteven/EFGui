@@ -16,12 +16,22 @@ class BaseEditor(metaclass=ABCMeta):
 # locally.json 编辑
 class LocallyFileEditor(BaseEditor):
 
+    # def eventFilter(self, obj, event):
+    #     if event.type() == QtCore.QEvent.MouseButtonPress:
+    #         if event.button() == QtCore.Qt.LeftButton:
+    #             print(obj.objectName(), "Left click")
+    #         elif event.button() == QtCore.Qt.RightButton:
+    #             print(obj.objectName(), "Right click")
+    #         elif event.button() == QtCore.Qt.MiddleButton:
+    #             print(obj.objectName(), "Middle click")
+    #     return QtCore.QObject.event(obj, event)
+
     def show(self, json_str=None):
         global ui_dialog
         from submodel.locally_editor import Ui_Dialog
-        qDialog = QDialog()
+        dialog = QDialog()
         ui_dialog = Ui_Dialog()
-        ui_dialog.setupUi(qDialog)
+        ui_dialog.setupUi(self)
         # print("edit locally json:%s" % json_str)
         items = []
         j = json.loads(json_str)
@@ -36,7 +46,7 @@ class LocallyFileEditor(BaseEditor):
         print(items)
         model = LocallyTableModel(data=items)
         ui_dialog.tableView.setModel(model)
-        qDialog.exec()
+        dialog.exec()
         pass
 
 
