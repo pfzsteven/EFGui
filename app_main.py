@@ -1,7 +1,11 @@
 import os
 import sys
 
+import PyQt5
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QModelIndex
+from PyQt5.QtGui import QCursor
+from PyQt5.QtWidgets import QMenu
 
 import FileNames
 from main_editor import Ui_Dialog
@@ -105,10 +109,40 @@ def onTreeViewDoubleClick(qmodelIndex):
         pass
 
 
+def create_new_file(event):
+    print("-- create_new_file --")
+    print(event)
+    return True
+
+
+def delete_file(event):
+    print("-- delete_file --")
+    print(event)
+    return True
+
+
+def show_context_menu(pos: PyQt5.QtCore.QPoint):
+    modelIndex: QModelIndex = ui_dialog.treeView.indexAt(pos)
+    path = explorerModel.filePath(modelIndex)
+    (_, ext) = os.path.splitext(path)
+
+    menu = QMenu()
+    if len(ext) == 0:  # it's a dir type
+        create_new_file_action = menu.addAction('新建')
+        create_new_file_action.triggered.connect(create_new_file)
+        menu.addSeparator()
+        pass
+    delete_file_action = menu.addAction('删除')
+    delete_file_action.triggered.connect(delete_file)
+    menu.exec_(QCursor.pos())
+    pass
+
+
 def initTreeView():
     ui_dialog.treeView.clicked.connect(onTreeViewSingleClick)
     ui_dialog.treeView.doubleClicked.connect(onTreeViewDoubleClick)
-    # ui_dialog.treeView.contextMenuEvent.connect()
+    ui_dialog.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
+    ui_dialog.treeView.customContextMenuRequested.connect(show_context_menu)
     pass
 
 
