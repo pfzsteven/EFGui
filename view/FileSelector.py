@@ -8,5 +8,5 @@ def openDirectory():
 
 def openFile(dir):
     fd = QtWidgets.QFileDialog()
-    fd.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
+    fd.setFileMode(QtWidgets.QFileDialog.FileMode.AnyFile)
     return fd.getSaveFileName(directory=dir)
