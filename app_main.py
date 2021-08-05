@@ -6,13 +6,13 @@ from PyQt5 import QtWidgets
 
 import FileNames
 from main_editor import Ui_Dialog
-from submodel.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
+from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
 from view import ClickEvent, FileSelector
 
 # 当前工作路径
 currentWorkProject = None
 
-text_cache = json.loads("{}")
+text_cache = {}
 
 
 def isWorkProjectSet():
@@ -47,7 +47,7 @@ def initProject():
 
 
 def file2String(path):
-    cache = text_cache.get(path)
+    cache = text_cache.get(path, None)
     if cache is not None:
         return cache
     with open(path) as f:

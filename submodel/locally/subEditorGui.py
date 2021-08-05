@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 from PyQt5.QtWidgets import QDialog
 
 import FileNames
-from submodel.table_view import LocallyTableModel
+from submodel.locally.locally_table_view import LocallyTableModel
 
 
 class BaseEditor(metaclass=ABCMeta):
@@ -29,7 +29,7 @@ class LocallyFileEditor(BaseEditor):
 
     def show(self, json_str=None):
         global ui_dialog
-        from submodel.locally_editor import Ui_Dialog
+        from submodel.locally.locally_editor import Ui_Dialog
         dialog = QDialog()
         ui_dialog = Ui_Dialog()
         ui_dialog.setupUi(dialog)
