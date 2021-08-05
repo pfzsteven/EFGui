@@ -1,3 +1,5 @@
+import json
+import ntpath
 import os
 import sys
 
@@ -13,7 +15,7 @@ from utils import FileUtils, FileNames
 from view import ClickListener, FileSelector
 
 # 当前工作路径
-currentWorkProject = None
+currentWorkProject: str = None
 
 text_cache = {}
 
@@ -73,10 +75,11 @@ def file2String(path):
 
 
 def onTreeViewSingleClick(qmodelIndex):
+    """单击事件回调"""
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
-    
+
     # print("click file parent %s" % parent)
     # print("click file name %s" % file_name)
     # print("click file ext %d" % len(ext))
@@ -90,14 +93,60 @@ def onTreeViewSingleClick(qmodelIndex):
     pass
 
 
-def refreshPreview(file_path, new_string):
-    # 更新缓存和视图
+def onEditComplete(file_path, new_string):
+    """编辑文本完成后回调"""
     text_cache[file_path] = new_string
     showText(new_string)
     pass
 
 
+def onEditLocallyJsonComplete(file_path, new_string):
+    """编辑Locally.json文本完成后回调"""
+    text_cache[file_path] = new_string
+    showText(new_string)
+    # 初始化创建文件夹或者删除文件夹
+    if len(new_string) > 0:
+        j = json.loads(new_string)
+        items = j["item"]
+        filterIds = []
+        for item in items:
+            # 滤镜id
+            filter_id = item["id"]
+            filterIds.append(filter_id)
+            exists = os.path.exists(currentWorkProject + filter_id)
+            if exists is False:
+                FileUtils.createNewFile(currentWorkProject + filter_id)
+                pass
+            pass
+        # 根目录
+        sub_files = os.listdir(currentWorkProject)
+        to_delete_files = []
+        for f_path in sub_files:
+            (_, ext) = os.path.splitext(f_path)
+            if len(ext) == 0:
+                f_name = ntpath.basename(f_path)
+                if filterIds.count(f_name) == 0:
+                    to_delete_files.append(f_path)
+                    pass
+                else:
+                    filterIds.remove(f_name)
+                    pass
+                pass
+            pass
+        pass
+        print("to delete invalid dirs %d " % len(to_delete_files))
+        print("filterIds remains count:%d " % (len(filterIds)))
+
+        for delete_path in to_delete_files:
+            print("to delete file %s" % delete_path)
+            FileUtils.deleteFile(delete_path)
+            pass
+        pass
+    pass
+
+
 def onTreeViewDoubleClick(qmodelIndex):
+    """双击事件回调"""
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
@@ -110,15 +159,15 @@ def onTreeViewDoubleClick(qmodelIndex):
         pass
     else:
         if file_name == FileNames.FILE_LOCALLY_JSON:
-            LocallyFileEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
+            LocallyFileEditor().show(file_path=path, json_str=file2String(path), callback=onEditLocallyJsonComplete)
         elif file_name == FileNames.FILE_SCRIPT_TEXT or file_name == FileNames.FILE_SCRIPT_BACK_TEXT:
-            GogogoEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
+            GogogoEditor().show(file_path=path, json_str=file2String(path), callback=onEditComplete)
             pass
         else:
             if file_name.count("png") > 0:
                 pass
             else:
-                SimpleEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
+                SimpleEditor().show(file_path=path, json_str=file2String(path), callback=onEditComplete)
                 pass
             pass
         pass
