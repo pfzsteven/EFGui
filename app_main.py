@@ -3,11 +3,9 @@ import ntpath
 import os
 import re
 import sys
-from pathlib import Path
 
-import PyQt5
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt, QModelIndex
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
@@ -19,7 +17,7 @@ from utils import FileUtils, FileNames, ToastUtils
 from view import ClickListener, FileSelector
 
 # 当前工作路径
-currentWorkProject: str = None
+currentWorkProject = None
 
 text_cache = {}
 
@@ -126,7 +124,7 @@ def validateCurrentProject():
     return validate(currentWorkProject, validZip=False)
 
 
-def validateJsonFiles(filter_id_dir: str, array):
+def validateJsonFiles(filter_id_dir, array):
     """
     校验json内容
     :param filter_id_dir: 滤镜文件夹路径
@@ -190,7 +188,7 @@ def searchLocallyParentDir(parent):
     return result
 
 
-def validate(dir, validZip: False):
+def validate(dir, validZip=False):
     """
     通用校验模块
     :param dir: 文件夹路径
@@ -295,7 +293,7 @@ def showText(text):
     pass
 
 
-def file2String(path, addInCache: bool = True):
+def file2String(path, addInCache=True):
     """
     读取文件内容
     :param path:
@@ -350,7 +348,7 @@ def onEditComplete(file_path, new_string):
     pass
 
 
-def createScriptText(parent, version, gen_back: bool):
+def createScriptText(parent, version, gen_back):
     """
     创建脚本文件
     :param parent: 父路径
@@ -367,7 +365,7 @@ def createScriptText(parent, version, gen_back: bool):
     pass
 
 
-def createScriptConfig(parent: str, gen_back: bool):
+def createScriptConfig(parent, gen_back):
     """
     创建script_config.json文件
     :param parent: 父路径
@@ -383,7 +381,7 @@ def createScriptConfig(parent: str, gen_back: bool):
     pass
 
 
-def onGogogoScriptEditComplete(file_path: str, new_string: str, tube_gen_checked: tuple, tube_device_checked: tuple):
+def onGogogoScriptEditComplete(file_path, new_string, tube_gen_checked, tube_device_checked):
     """
     gogogo脚本编辑完成回调
     :param file_path: 文件路径
@@ -394,7 +392,7 @@ def onGogogoScriptEditComplete(file_path: str, new_string: str, tube_gen_checked
     """
     text_cache[file_path] = new_string
     showText(new_string)
-    parent_path = str(Path(file_path).parent.absolute())
+    (parent_path, file_name) = os.path.split(file_path)
 
     print("onGogogoScriptEditComplete %s " % parent_path)
 
@@ -502,8 +500,8 @@ def validate_current_dir(event):
     pass
 
 
-def show_context_menu(pos: PyQt5.QtCore.QPoint):
-    modelIndex: QModelIndex = ui_dialog.treeView.indexAt(pos)
+def show_context_menu(pos):
+    modelIndex = ui_dialog.treeView.indexAt(pos)
     path = explorerModel.filePath(modelIndex)
     (_, ext) = os.path.splitext(path)
     (_, file_name) = os.path.split(path)

@@ -31,7 +31,7 @@ def deleteFile(path):
     pass
 
 
-def writeString2File(path: str, text: str):
+def writeString2File(path, text):
     file = open(path, mode='w+')
     file.write(text)
     file.close()
