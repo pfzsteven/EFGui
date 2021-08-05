@@ -7,10 +7,9 @@ from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
-import FileNames
-import file_utils
 from main_editor import Ui_Dialog
 from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
+from utils import FileUtils, FileNames
 from view import ClickListener, FileSelector
 
 # 当前工作路径
@@ -52,7 +51,7 @@ def refreshTreeView():
 def initProject():
     if currentWorkProject is None:
         return
-    file_utils.createNewFile(currentWorkProject + FileNames.FILE_LOCALLY_JSON)
+    FileUtils.createNewFile(currentWorkProject + FileNames.FILE_LOCALLY_JSON)
     pass
 
 
@@ -77,9 +76,10 @@ def onTreeViewSingleClick(qmodelIndex):
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
-    print("click file parent %s" % parent)
-    print("click file name %s" % file_name)
-    print("click file ext %d" % len(ext))
+    
+    # print("click file parent %s" % parent)
+    # print("click file name %s" % file_name)
+    # print("click file ext %d" % len(ext))
 
     if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
         showText("")
@@ -90,27 +90,35 @@ def onTreeViewSingleClick(qmodelIndex):
     pass
 
 
+def refreshPreview(file_path, new_string):
+    # 更新缓存和视图
+    text_cache[file_path] = new_string
+    showText(new_string)
+    pass
+
+
 def onTreeViewDoubleClick(qmodelIndex):
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
-    print("double click file parent %s" % parent)
-    print("double click file name %s" % file_name)
-    print("double click file ext %d" % len(ext))
+
+    # print("double click file parent %s" % parent)
+    # print("double click file name %s" % file_name)
+    # print("double click file ext %d" % len(ext))
 
     if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
         pass
     else:
         if file_name == FileNames.FILE_LOCALLY_JSON:
-            LocallyFileEditor().show(file2String(path))
+            LocallyFileEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
         elif file_name == FileNames.FILE_SCRIPT_TEXT or file_name == FileNames.FILE_SCRIPT_BACK_TEXT:
-            GogogoEditor().show(file2String(path))
+            GogogoEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
             pass
         else:
             if file_name.count("png") > 0:
                 pass
             else:
-                SimpleEditor().show(file2String(path))
+                SimpleEditor().show(file_path=path, json_str=file2String(path), callback=refreshPreview)
                 pass
             pass
         pass
@@ -120,7 +128,7 @@ def create_new_file(event):
     selectionModel = ui_dialog.treeView.currentIndex()
     path = explorerModel.filePath(selectionModel)
     file_path = FileSelector.openFile(path)
-    file_utils.createNewFile(file_path[0])
+    FileUtils.createNewFile(file_path[0])
     refreshTreeView()
     return True
 
@@ -128,7 +136,7 @@ def create_new_file(event):
 def delete_file(event):
     selectionModel = ui_dialog.treeView.currentIndex()
     path = explorerModel.filePath(selectionModel)
-    file_utils.deleteFile(path)
+    FileUtils.deleteFile(path)
     refreshTreeView()
     return True
 

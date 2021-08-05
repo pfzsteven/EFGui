@@ -5,14 +5,18 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QDialog
 
-import FileNames
 from submodel.locally.locally_table_view import LocallyTableModel
+from utils import FileNames, FileUtils
 
 
 class BaseEditor(metaclass=ABCMeta):
 
+    def __init__(self):
+        self.file_path = None
+        self.callback = None
+
     @abstractmethod
-    def show(self, json_str=None):
+    def show(self, file_path, json_str=None, callback=None):
         pass
 
 
@@ -20,6 +24,7 @@ class BaseEditor(metaclass=ABCMeta):
 class LocallyFileEditor(BaseEditor):
 
     def __init__(self):
+        super().__init__()
         self.version = ""
 
     def accept(self):
@@ -41,7 +46,7 @@ class LocallyFileEditor(BaseEditor):
                     table_model.data(table_model.index(row, col),
                                      role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
                 if col == 1:  # id
-                    item["id"] = value
+                    item["id"] = value.upper()
                     pass
                 elif col == 2:  # name
                     item["name"] = value
@@ -51,7 +56,7 @@ class LocallyFileEditor(BaseEditor):
                         item["makeup_id"] = ""
                         pass
                     else:
-                        item["makeup_id"] = str(value)
+                        item["makeup_id"] = str(value).upper()
                         pass
                     pass
                 pass
@@ -60,6 +65,9 @@ class LocallyFileEditor(BaseEditor):
         pass
         jsonObject["item"] = items
         new_json_str = json.dumps(jsonObject, ensure_ascii=False)
+        FileUtils.writeString2File(text=new_json_str, path=self.file_path)
+        if self.callback is not None:
+            self.callback(self.file_path, new_json_str)
         dialog.close()
         pass
 
@@ -67,7 +75,9 @@ class LocallyFileEditor(BaseEditor):
         dialog.close()
         pass
 
-    def show(self, json_str=None):
+    def show(self, file_path, json_str=None, callback=None):
+        self.file_path = file_path
+        self.callback = callback
         global ui_dialog
         global dialog
         from submodel.locally.locally_editor import Ui_Dialog
@@ -86,7 +96,6 @@ class LocallyFileEditor(BaseEditor):
             table_index += 1
             items.append(row_data)
             pass
-        print(items)
         global table_model
         table_model = LocallyTableModel(data=items)
         ui_dialog.tableView.setModel(table_model)
@@ -99,11 +108,25 @@ class LocallyFileEditor(BaseEditor):
 
 # gogogo 脚本编辑
 class GogogoEditor(BaseEditor):
-    def show(self, json_str=None):
+
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def show(self, file_path, json_str=None, callback=None):
+        self.file_path = file_path
+        self.callback = callback
         pass
 
 
 # 普通文本编辑
 class SimpleEditor(BaseEditor):
-    def show(self, json_str=None):
+
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def show(self, file_path, json_str=None, callback=None):
+        self.file_path = file_path
+        self.callback = callback
         pass
