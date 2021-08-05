@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QMenu
 
 from main_editor import Ui_Dialog
 from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
-from utils import FileUtils, FileNames
+from utils import FileUtils, FileNames, ToastUtils
 from view import ClickListener, FileSelector
 
 # 当前工作路径
@@ -31,7 +31,7 @@ def openProject():
     if not currentWorkProject.endswith("/"):
         currentWorkProject = currentWorkProject + "/"
         pass
-    pass
+    print("currentWorkProject = %s" % currentWorkProject)
     global explorerModel
     explorerModel = QtWidgets.QFileSystemModel()
     explorerModel.setRootPath(currentWorkProject)
@@ -42,7 +42,61 @@ def openProject():
     for i in range(1, explorerModel.columnCount()):
         ui_dialog.treeView.hideColumn(i)
         pass
+    checkLocallyJson()
+    pass
 
+
+def checkLocallyJson():
+    if not os.path.exists(currentWorkProject):
+        return
+    locally_json_path = currentWorkProject + FileNames.FILE_LOCALLY_JSON
+    new_string = file2String(locally_json_path)
+    # 检查文件夹完整性
+    if len(new_string) > 0:
+        j = json.loads(new_string)
+        items = j["item"]
+        filterIds = []
+        for item in items:
+            # 滤镜id
+            filter_id = item["id"]
+            filterIds.append(filter_id)
+            exists = os.path.exists(currentWorkProject + filter_id)
+            if exists is False:
+                # 创建新滤镜文件夹
+                dir_path = currentWorkProject + filter_id
+                FileUtils.createNewDir(dir_path)
+                # 创建gogogo脚本文件
+                FileUtils.createNewFile(dir_path + "/" + FileNames.FILE_SCRIPT_TEXT)
+                FileUtils.createNewFile(dir_path + "/" + FileNames.FILE_SCRIPT_BACK_TEXT)
+                # 创建config.json
+                FileUtils.createNewFile(dir_path + "/" + FileNames.FILE_CONFIG_JSON)
+                pass
+            pass
+        # 根目录
+        sub_files = os.listdir(currentWorkProject)
+        to_delete_files = []
+        for f_path in sub_files:
+            (_, ext) = os.path.splitext(f_path)
+            if len(ext) == 0:
+                f_name = ntpath.basename(f_path)
+                if filterIds.count(f_name) == 0:
+                    to_delete_files.append(f_path)
+                    pass
+                else:
+                    filterIds.remove(f_name)
+                    pass
+                pass
+            pass
+        pass
+        print("to delete invalid dirs %d " % len(to_delete_files))
+        print("filterIds remains count:%d " % (len(filterIds)))
+        for delete_path in to_delete_files:
+            print("to delete file %s" % delete_path)
+            FileUtils.deleteFile(delete_path)
+            pass
+        pass
+    # 刷新控件
+    refreshTreeView()
     pass
 
 
@@ -52,8 +106,15 @@ def refreshTreeView():
 
 def initProject():
     if currentWorkProject is None:
+        ToastUtils.warn('提示', "请先打开工程")
         return
-    FileUtils.createNewFile(currentWorkProject + FileNames.FILE_LOCALLY_JSON)
+    pass
+    json_path = currentWorkProject + FileNames.FILE_LOCALLY_JSON
+    if not FileUtils.isFileExists(json_path):
+        FileUtils.createNewFile(json_path)
+        pass
+    else:
+        ToastUtils.warn('提示', FileNames.FILE_LOCALLY_JSON + "文件已存在")
     pass
 
 
@@ -105,43 +166,7 @@ def onEditLocallyJsonComplete(file_path, new_string):
     text_cache[file_path] = new_string
     showText(new_string)
     # 初始化创建文件夹或者删除文件夹
-    if len(new_string) > 0:
-        j = json.loads(new_string)
-        items = j["item"]
-        filterIds = []
-        for item in items:
-            # 滤镜id
-            filter_id = item["id"]
-            filterIds.append(filter_id)
-            exists = os.path.exists(currentWorkProject + filter_id)
-            if exists is False:
-                FileUtils.createNewFile(currentWorkProject + filter_id)
-                pass
-            pass
-        # 根目录
-        sub_files = os.listdir(currentWorkProject)
-        to_delete_files = []
-        for f_path in sub_files:
-            (_, ext) = os.path.splitext(f_path)
-            if len(ext) == 0:
-                f_name = ntpath.basename(f_path)
-                if filterIds.count(f_name) == 0:
-                    to_delete_files.append(f_path)
-                    pass
-                else:
-                    filterIds.remove(f_name)
-                    pass
-                pass
-            pass
-        pass
-        print("to delete invalid dirs %d " % len(to_delete_files))
-        print("filterIds remains count:%d " % (len(filterIds)))
-
-        for delete_path in to_delete_files:
-            print("to delete file %s" % delete_path)
-            FileUtils.deleteFile(delete_path)
-            pass
-        pass
+    checkLocallyJson()
     pass
 
 

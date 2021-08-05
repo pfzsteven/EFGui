@@ -6,7 +6,7 @@ from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QDialog
 
 from submodel.locally.locally_table_view import LocallyTableModel
-from utils import FileNames, FileUtils
+from utils import FileNames, FileUtils, ToastUtils
 
 
 class BaseEditor(metaclass=ABCMeta):
@@ -38,37 +38,46 @@ class LocallyFileEditor(BaseEditor):
         pass
         jsonObject["version"] = self.version
         items = []
-
+        error = False
         for row in range(0, table_model.rowCount()):
             item = {}
-            for col in range(1, table_model.columnCount()):
-                value = str(
-                    table_model.data(table_model.index(row, col),
-                                     role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
-                if col == 1:  # id
-                    item["id"] = value.upper()
+            f_id = str(table_model.data(table_model.index(row, 1),
+                                        role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
+            f_name = str(table_model.data(table_model.index(row, 2),
+                                          role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
+            makeup_id = str(table_model.data(table_model.index(row, 3),
+                                             role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
+
+            if len(f_id) > 0 and len(f_name) > 0:
+                item["id"] = f_id.upper()
+                item["name"] = f_name
+                if makeup_id == "None":
+                    item["makeup_id"] = ""
                     pass
-                elif col == 2:  # name
-                    item["name"] = value
-                    pass
-                elif col == 3:  # makeup_id
-                    if value is None or str(value) == "None":
-                        item["makeup_id"] = ""
-                        pass
-                    else:
-                        item["makeup_id"] = str(value).upper()
-                        pass
+                else:
+                    item["makeup_id"] = makeup_id.upper()
                     pass
                 pass
+            elif len(f_id) > 0 or len(f_name) > 0:
+                error = True
+                break
+            else:
+                break
+
+            pass
             items.append(item)
             pass
         pass
-        jsonObject["item"] = items
-        new_json_str = json.dumps(jsonObject, ensure_ascii=False)
-        FileUtils.writeString2File(text=new_json_str, path=self.file_path)
-        if self.callback is not None:
-            self.callback(self.file_path, new_json_str)
-        dialog.close()
+        if not error:
+            jsonObject["item"] = items
+            new_json_str = json.dumps(jsonObject, ensure_ascii=False)
+            FileUtils.writeString2File(text=new_json_str, path=self.file_path)
+            if self.callback is not None:
+                self.callback(self.file_path, new_json_str)
+            dialog.close()
+            pass
+        else:
+            ToastUtils.warn(title="提示", msg="滤镜ID和滤镜名称均为必填项")
         pass
 
     def reject(self):
@@ -89,12 +98,20 @@ class LocallyFileEditor(BaseEditor):
         j = json.loads(json_str)
         self.version = j["version"]
         json_array = j["item"]
+        data_size = 0
         table_index = 1
-        for item in json_array:
-            row_data = [table_index, item["id"], item["name"], item.get("makeup_id")]
-            # print(row_data)
+        if json_array is not None:
+            data_size = len(json_array)
+            for item in json_array:
+                row_data = [table_index, item["id"], item["name"], item.get("makeup_id")]
+                # print(row_data)
+                table_index += 1
+                items.append(row_data)
+                pass
+        # 额外创建50行
+        for c in range(0, 50 - data_size):
+            items.append([table_index, "", "", ""])
             table_index += 1
-            items.append(row_data)
             pass
         global table_model
         table_model = LocallyTableModel(data=items)
