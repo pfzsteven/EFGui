@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 
@@ -46,6 +45,11 @@ def initProject():
     pass
 
 
+def showText(text):
+    text_view.setText(text)
+    pass
+
+
 def file2String(path):
     cache = text_cache.get(path, None)
     if cache is not None:
@@ -67,10 +71,10 @@ def onTreeViewSingleClick(qmodelIndex):
     print("click file ext %d" % len(ext))
 
     if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
-        text_view.setText("")
+        showText("")
         pass
     else:
-        text_view.setText((file2String(path)))
+        showText((file2String(path)))
         pass
     pass
 
@@ -127,6 +131,7 @@ if __name__ == '__main__':
     ui_dialog.setupUi(form)
 
     text_view = QtWidgets.QLabel()
+    text_view.setWordWrap(True)
     ui_dialog.scrollArea.setWidget(text_view)
     initWidgets()
     form.show()
