@@ -1,4 +1,3 @@
-import datetime
 import json
 import ntpath
 import os
@@ -119,7 +118,7 @@ def validateFiles():
     pass
 
 
-def validateJsonFiles(filter_id_dir):
+def validateJsonFiles(filter_id_dir: str, array):
     """
     校验json内容
     :param filter_id_dir: 滤镜文件夹路径
@@ -127,40 +126,92 @@ def validateJsonFiles(filter_id_dir):
     """
     if not FileUtils.isFileExists(filter_id_dir):
         return
-    
+
+    (_, file_name) = os.path.split(filter_id_dir)
+
+    files = [f for f in os.listdir(filter_id_dir) if re.match(r'.*\.json', f)]
+    # 检查 xxx.json，以及 ["icon.png", "script.txt", "script_config.json"] 文件是否存在
+    icon_file = filter_id_dir + "/" + FileNames.FILE_ICON
+    script_text = filter_id_dir + "/" + FileNames.FILE_SCRIPT_TEXT
+    script_config_json = filter_id_dir + "/" + FileNames.FILE_SCRIPT_CONFIG_JSON
+
+    if not FileUtils.isFileExists(icon_file):
+        array.append(file_name + "缺失文件 " + FileNames.FILE_ICON)
+
+    if not FileUtils.isFileExists(script_text):
+        array.append(file_name + "缺失文件 " + FileNames.FILE_SCRIPT_TEXT)
+
+    if not FileUtils.isFileExists(script_config_json):
+        array.append(file_name + "缺失文件 " + FileNames.FILE_SCRIPT_CONFIG_JSON)
     pass
 
+    for file in files:
+        path = filter_id_dir + "/" + file
+        (_, j_file_name) = os.path.split(path)
+        json_string = file2String(path, addInCache=False)
+        try:
+            json.loads(json_string)
+        except Exception as e:
+            print(e)
+            array.append(file_name + "/" + j_file_name + " 发生json错误")
+            pass
 
-def validate(dir):
-    Filter_path = dir + "/Filter"
-    filter_path = dir + "/filter"
+
+def searchLocallyParentDir(parent):
+    locally_json_file = parent + "/" + FileNames.FILE_LOCALLY_JSON
+    if FileUtils.isFileExists(locally_json_file):
+        print("yes , i find it #1. return %s" % parent)
+        return parent
+    result = None
+    for sub_file in os.listdir(parent):
+        if result is not None:
+            break
+        if sub_file.count(".") == 0:
+            result = searchLocallyParentDir(parent + "/" + sub_file)
+        else:
+            if sub_file == FileNames.FILE_LOCALLY_JSON:
+                result = parent
+                print("yes , i find it #2. return %s" % parent)
+        if result is not None:
+            break
+    return result
+
+
+def validate(dir, validZip: False):
     root = dir
-
-    if FileUtils.isFileExists(Filter_path):
-        root = Filter_path
-    elif FileUtils.isFileExists(filter_path):
-        root = filter_path
+    if validZip:
+        root = searchLocallyParentDir(dir)
         pass
-    print("validate root " + root)
+    if root is None:
+        print("sorry , can't find the root dir")
+        return
 
     if FileUtils.isFileExists(root):
         (parent_dir, file_name) = os.path.split(root)
+        valid_zip_error_log = []
+        # 判断当前是否符合 Fxx 文件夹名称
         res = re.search("^F\\d+$", file_name)
         if res:
-            validateJsonFiles(root)
+            validateJsonFiles(root, valid_zip_error_log)
             pass
         else:
             sub_files = os.listdir(root)
             # 检查 xxx.json，以及 ["icon.png", "script.txt", "script_config.json"] 文件是否存在
             for sub_file_name in sub_files:
-                print(".... sub_file_name " + sub_file_name)
                 res = re.search("^F\\d+$", sub_file_name)
                 if res:
-                    validateJsonFiles(root + "/" + sub_file_name)
+                    validateJsonFiles(root + "/" + sub_file_name, valid_zip_error_log)
                     pass
                 pass
             pass
-        pass
+
+        if len(valid_zip_error_log) > 0:
+            error_msg = ""
+            for elem in valid_zip_error_log:
+                error_msg = error_msg + str(elem) + "\n"
+                pass
+            pass
+            ToastUtils.warn(title="错误提示", msg=error_msg)
     pass
 
 
@@ -180,15 +231,15 @@ def chooseZip2Validate():
     """
     (path_to_zip_file, _) = FileSelector.openFile()
     if len(path_to_zip_file) > 0 and path_to_zip_file.count(".zip") > 0:
-        parent_path = str(Path(path_to_zip_file).parent.absolute())
-        directory_to_extract_to = parent_path + "/" + str(datetime.datetime.now())
-        print("directory_to_extract_to " + directory_to_extract_to)
+        (parent_dir, file_name) = os.path.split(path_to_zip_file)
+        directory_to_extract_to = parent_dir + "/" + (file_name.replace(".zip", "") + "_tmp")
+        # 删除旧的
+        FileUtils.deleteFile(directory_to_extract_to)
         import zipfile
         with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
             zip_ref.extractall(directory_to_extract_to)
             pass
-        validate(directory_to_extract_to)
-        FileUtils.deleteFile(directory_to_extract_to)
+        validate(directory_to_extract_to, validZip=True)
     pass
 
 
