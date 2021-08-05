@@ -129,6 +129,7 @@ def delete_file(event):
     selectionModel = ui_dialog.treeView.currentIndex()
     path = explorerModel.filePath(selectionModel)
     file_utils.deleteFile(path)
+    refreshTreeView()
     return True
 
 
