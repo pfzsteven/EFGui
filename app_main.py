@@ -94,10 +94,10 @@ def checkLocallyJson():
                 pass
             pass
         pass
-        print("to delete invalid dirs %d " % len(to_delete_files))
-        print("filterIds remains count:%d " % (len(filterIds)))
+        # print("to delete invalid dirs %d " % len(to_delete_files))
+        # print("filterIds remains count:%d " % (len(filterIds)))
         for delete_path in to_delete_files:
-            print("to delete file %s" % delete_path)
+            # print("to delete file %s" % delete_path)
             FileUtils.deleteFile(delete_path)
             pass
         pass
@@ -107,15 +107,23 @@ def checkLocallyJson():
 
 
 def refreshTreeView():
+    """
+    刷新控件
+    :return:
+    """
     explorerModel.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
+    pass
 
 
-def validateFiles():
+def validateCurrentProject():
     """
     校验当前内容
     :return:
     """
-    pass
+    if currentWorkProject is None:
+        ToastUtils.warn(title="错误提示", msg="请先选择一个工程")
+        return False
+    return validate(currentWorkProject, validZip=False)
 
 
 def validateJsonFiles(filter_id_dir: str, array):
@@ -158,6 +166,11 @@ def validateJsonFiles(filter_id_dir: str, array):
 
 
 def searchLocallyParentDir(parent):
+    """
+    若是检测zip包，则先找到locally.json文件所在根目录
+    :param parent:
+    :return:
+    """
     locally_json_file = parent + "/" + FileNames.FILE_LOCALLY_JSON
     if FileUtils.isFileExists(locally_json_file):
         print("yes , i find it #1. return %s" % parent)
@@ -178,13 +191,19 @@ def searchLocallyParentDir(parent):
 
 
 def validate(dir, validZip: False):
+    """
+    通用校验模块
+    :param dir: 文件夹路径
+    :param validZip: 是否为校验zip包内容
+    :return:
+    """
     root = dir
     if validZip:
         root = searchLocallyParentDir(dir)
         pass
+    pass
     if root is None:
-        print("sorry , can't find the root dir")
-        return
+        return False
 
     if FileUtils.isFileExists(root):
         (parent_dir, file_name) = os.path.split(root)
@@ -209,10 +228,13 @@ def validate(dir, validZip: False):
             error_msg = ""
             for elem in valid_zip_error_log:
                 error_msg = error_msg + str(elem) + "\n"
-                pass
-            pass
             ToastUtils.warn(title="错误提示", msg=error_msg)
-    pass
+            pass
+        else:
+            ToastUtils.info(title="成功提示", msg="校验通过 :)")
+            return True
+
+    return False
 
 
 def exportZip():
@@ -220,7 +242,9 @@ def exportZip():
     导出为zip包
     :return:
     """
-    validate(currentWorkProject)
+    success = validateCurrentProject()
+    if success:
+        pass
     pass
 
 
@@ -244,8 +268,12 @@ def chooseZip2Validate():
 
 
 def initProject():
+    """
+    初始化locally.json
+    :return:
+    """
     if currentWorkProject is None:
-        ToastUtils.warn('提示', "请先打开工程")
+        ToastUtils.warn('错误提示', "请先选择一个工程")
         return
     pass
     json_path = currentWorkProject + FileNames.FILE_LOCALLY_JSON
@@ -253,16 +281,27 @@ def initProject():
         FileUtils.createNewFile(json_path)
         pass
     else:
-        ToastUtils.warn('提示', FileNames.FILE_LOCALLY_JSON + "文件已存在")
+        ToastUtils.warn('错误提示', FileNames.FILE_LOCALLY_JSON + "文件已存在")
     pass
 
 
 def showText(text):
+    """
+    右侧显示文件内容
+    :param text:
+    :return:
+    """
     text_view.setText(text)
     pass
 
 
 def file2String(path, addInCache: bool = True):
+    """
+    读取文件内容
+    :param path:
+    :param addInCache:
+    :return:
+    """
     cache = text_cache.get(path, None)
     if cache is not None:
         return cache
@@ -277,7 +316,11 @@ def file2String(path, addInCache: bool = True):
 
 
 def onTreeViewSingleClick(qmodelIndex):
-    """单击事件回调"""
+    """
+    单击事件
+    :param qmodelIndex:
+    :return:
+    """
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
@@ -296,7 +339,12 @@ def onTreeViewSingleClick(qmodelIndex):
 
 
 def onEditComplete(file_path, new_string):
-    """编辑文本完成后回调"""
+    """
+    普通文本编辑回调
+    :param file_path:
+    :param new_string:
+    :return:
+    """
     text_cache[file_path] = new_string
     showText(new_string)
     pass
@@ -377,7 +425,12 @@ def onGogogoScriptEditComplete(file_path: str, new_string: str, tube_gen_checked
 
 
 def onEditLocallyJsonComplete(file_path, new_string):
-    """编辑Locally.json文本完成后回调"""
+    """
+    编辑Locally.json文本完成后回调
+    :param file_path:
+    :param new_string:
+    :return:
+    """
     text_cache[file_path] = new_string
     showText(new_string)
     # 初始化创建文件夹或者删除文件夹
@@ -386,7 +439,11 @@ def onEditLocallyJsonComplete(file_path, new_string):
 
 
 def onTreeViewDoubleClick(qmodelIndex):
-    """双击事件回调"""
+    """
+    双击事件回调
+    :param qmodelIndex:
+    :return:
+    """
     path = explorerModel.filePath(qmodelIndex)
     (_, ext) = os.path.splitext(path)
     (parent, file_name) = os.path.split(path)
@@ -431,9 +488,17 @@ def delete_file(event):
 
 
 def validate_current_dir(event):
+    """
+    选中某个文件夹，进行验证
+    :param event:
+    :return:
+    """
     selectionModel = ui_dialog.treeView.currentIndex()
     path = explorerModel.filePath(selectionModel)
-    validate(path)
+    (_, file_name) = os.path.split(path)
+    res = re.search("^F\\d+$", file_name)
+    if res:
+        validate(path, validZip=False)
     pass
 
 
@@ -441,12 +506,16 @@ def show_context_menu(pos: PyQt5.QtCore.QPoint):
     modelIndex: QModelIndex = ui_dialog.treeView.indexAt(pos)
     path = explorerModel.filePath(modelIndex)
     (_, ext) = os.path.splitext(path)
-
+    (_, file_name) = os.path.split(path)
+    res = re.search("^F\\d+$", file_name)
     menu = QMenu()
     if len(ext) == 0:  # it's a dir type
-        validate_action = menu.addAction('校验当前文件夹')
-        validate_action.triggered.connect(validate_current_dir)
-        menu.addSeparator()
+        if res:
+            validate_action = menu.addAction('校验当前文件夹')
+            validate_action.triggered.connect(validate_current_dir)
+            menu.addSeparator()
+            pass
+        pass
 
         create_new_file_action = menu.addAction('新建')
         create_new_file_action.triggered.connect(create_new_file)
@@ -474,7 +543,7 @@ def initWidgets():
     # init project files
     ClickListener.setOnClickListener(ui_dialog.btn_init, initProject)
     # 校验
-    ClickListener.setOnClickListener(ui_dialog.btn_validate, validateFiles)
+    ClickListener.setOnClickListener(ui_dialog.btn_validate, validateCurrentProject)
     # 导出zip
     ClickListener.setOnClickListener(ui_dialog.btn_export_zip, exportZip)
     # 选择zip校验
