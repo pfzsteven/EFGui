@@ -1,23 +1,12 @@
 import json
-from abc import ABCMeta, abstractmethod
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QDialog
 
+from submodel.interfaces import BaseEditor
 from submodel.locally.locally_table_view import LocallyTableModel
 from utils import FileNames, FileUtils, ToastUtils
-
-
-class BaseEditor(metaclass=ABCMeta):
-
-    def __init__(self):
-        self.file_path = None
-        self.callback = None
-
-    @abstractmethod
-    def show(self, file_path, json_str=None, callback=None):
-        pass
 
 
 # locally.json 编辑
@@ -84,7 +73,7 @@ class LocallyFileEditor(BaseEditor):
         dialog.close()
         pass
 
-    def show(self, file_path, json_str=None, callback=None):
+    def show(self, file_path, text=None, callback=None):
         self.file_path = file_path
         self.callback = callback
         global ui_dialog
@@ -95,7 +84,7 @@ class LocallyFileEditor(BaseEditor):
         ui_dialog.setupUi(dialog)
         # print("edit locally json:%s" % json_str)
         items = []
-        j = json.loads(json_str)
+        j = json.loads(text)
         self.version = j["version"]
         json_array = j["item"]
         data_size = 0
@@ -120,30 +109,3 @@ class LocallyFileEditor(BaseEditor):
         ui_dialog.buttonBox.rejected.connect(self.reject)
         dialog.setWindowTitle(FileNames.FILE_LOCALLY_JSON)
         dialog.exec()
-        pass
-
-
-# gogogo 脚本编辑
-class GogogoEditor(BaseEditor):
-
-    def __init__(self):
-        super().__init__()
-        pass
-
-    def show(self, file_path, json_str=None, callback=None):
-        self.file_path = file_path
-        self.callback = callback
-        pass
-
-
-# 普通文本编辑
-class SimpleEditor(BaseEditor):
-
-    def __init__(self):
-        super().__init__()
-        pass
-
-    def show(self, file_path, json_str=None, callback=None):
-        self.file_path = file_path
-        self.callback = callback
-        pass

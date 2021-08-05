@@ -62,13 +62,13 @@
     </rect>
    </property>
    <property name="text">
-    <string>创建locally.json</string>
+    <string>新建locally.json</string>
    </property>
    <property name="autoDefault">
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="btn_import_zip">
+  <widget class="QPushButton" name="btn_validate">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -78,7 +78,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>zip校验</string>
+    <string>校验</string>
    </property>
    <property name="autoDefault">
     <bool>false</bool>
@@ -92,6 +92,38 @@
      <width>281</width>
      <height>551</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_export_zip">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>10</y>
+     <width>121</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>导出(zip格式)</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_select_zip_validate">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>10</y>
+     <width>121</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>选择zip校验</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>

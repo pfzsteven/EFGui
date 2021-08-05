@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 
 
@@ -21,7 +22,7 @@ def deleteFile(path):
         # 判断是否为文件夹
         (_, ext) = os.path.splitext(path)
         if len(ext) == 0:
-            os.rmdir(path)
+            shutil.rmtree(path)
             pass
         else:
             os.remove(path)
@@ -30,8 +31,7 @@ def deleteFile(path):
     pass
 
 
-def writeString2File(text: str, path: str):
+def writeString2File(path: str, text: str):
     file = open(path, mode='w+')
     file.write(text)
-    file.flush()
     file.close()

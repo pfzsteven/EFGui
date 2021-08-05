@@ -2,6 +2,7 @@ import json
 import ntpath
 import os
 import sys
+from pathlib import Path
 
 import PyQt5
 from PyQt5 import QtWidgets, QtCore
@@ -10,7 +11,9 @@ from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
 from main_editor import Ui_Dialog
-from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
+from submodel.gogogo.gogogo_editor_gui import GogogoEditor
+from submodel.locally.locally_editor_gui import LocallyFileEditor
+from submodel.simple.simple_text_editor import SimpleEditor
 from utils import FileUtils, FileNames, ToastUtils
 from view import ClickListener, FileSelector
 
@@ -28,10 +31,13 @@ def openProject():
     # 展示文件弹窗
     global currentWorkProject
     currentWorkProject = FileSelector.openDirectory()
+    if len(currentWorkProject) == 0:
+        return
     if not currentWorkProject.endswith("/"):
         currentWorkProject = currentWorkProject + "/"
         pass
     print("currentWorkProject = %s" % currentWorkProject)
+
     global explorerModel
     explorerModel = QtWidgets.QFileSystemModel()
     explorerModel.setRootPath(currentWorkProject)
@@ -43,7 +49,6 @@ def openProject():
         ui_dialog.treeView.hideColumn(i)
         pass
     checkLocallyJson()
-    pass
 
 
 def checkLocallyJson():
@@ -104,6 +109,30 @@ def refreshTreeView():
     explorerModel.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
 
 
+def validateFiles():
+    """
+    校验当前内容
+    :return:
+    """
+    pass
+
+
+def exportZip():
+    """
+    导出为zip包
+    :return:
+    """
+    pass
+
+
+def chooseZip2Validate():
+    """
+    选择zip包进行校验
+    :return:
+    """
+    pass
+
+
 def initProject():
     if currentWorkProject is None:
         ToastUtils.warn('提示', "请先打开工程")
@@ -161,6 +190,80 @@ def onEditComplete(file_path, new_string):
     pass
 
 
+def createScriptText(parent, version, gen_back: bool):
+    """
+    创建脚本文件
+    :param parent: 父路径
+    :param version: 系统版本
+    :param gen_back: 是否生成后置
+    :return:
+    """
+    script_text = parent + "/" + "script_iphone" + version + ".txt"
+    FileUtils.createNewFile(script_text)
+    if gen_back is True:
+        script_text_back = parent + "/" + "script_iphone" + version + "_back.txt"
+        FileUtils.createNewFile(script_text_back)
+        pass
+    pass
+
+
+def createScriptConfig(parent: str, gen_back: bool):
+    """
+    创建script_config.json文件
+    :param parent: 父路径
+    :param gen_back: 是否生成后置
+    :return:
+    """
+    script_config_file_path = parent + "/" + FileNames.FILE_SCRIPT_CONFIG_JSON
+    FileUtils.writeString2File(path=script_config_file_path, text="{}")
+    if gen_back is True:
+        script_config_back_file_path = parent + "/" + FileNames.FILE_SCRIPT_BACK_CONFIG_JSON
+        FileUtils.writeString2File(path=script_config_back_file_path, text="{}")
+        pass
+    pass
+
+
+def onGogogoScriptEditComplete(file_path: str, new_string: str, tube_gen_checked: tuple, tube_device_checked: tuple):
+    """
+    gogogo脚本编辑完成回调
+    :param file_path: 文件路径
+    :param new_string: 内容
+    :param tube_gen_checked: [是否生成前后置脚本 or 是否仅生成前置脚本 or 是否仅生成后置脚本]
+    :param tube_device_checked: 机型适配勾选列表：[iphone6,iphone8,iphoneX,iphone11,iphone12]
+    :return:
+    """
+    text_cache[file_path] = new_string
+    showText(new_string)
+    parent_path = str(Path(file_path).parent.absolute())
+
+    print("onGogogoScriptEditComplete %s " % parent_path)
+
+    # 创建 script_config.json文件
+    createScriptConfig(parent_path, tube_gen_checked[0] or tube_gen_checked[2])
+
+    # iphone6
+    if tube_device_checked[0] is True:
+        createScriptText(parent_path, "6", tube_device_checked[0])
+        pass
+    # iphone8
+    if tube_device_checked[1] is True:
+        createScriptText(parent_path, "8", tube_device_checked[1])
+        pass
+    # iphonex
+    if tube_device_checked[2] is True:
+        createScriptText(parent_path, "x", tube_device_checked[2])
+        pass
+    # iphone11
+    if tube_device_checked[3] is True:
+        createScriptText(parent_path, "11", tube_device_checked[3])
+        pass
+    # iphone12
+    if tube_device_checked[4] is True:
+        createScriptText(parent_path, "12", tube_device_checked[4])
+        pass
+    pass
+
+
 def onEditLocallyJsonComplete(file_path, new_string):
     """编辑Locally.json文本完成后回调"""
     text_cache[file_path] = new_string
@@ -184,15 +287,15 @@ def onTreeViewDoubleClick(qmodelIndex):
         pass
     else:
         if file_name == FileNames.FILE_LOCALLY_JSON:
-            LocallyFileEditor().show(file_path=path, json_str=file2String(path), callback=onEditLocallyJsonComplete)
+            LocallyFileEditor().show(file_path=path, text=file2String(path), callback=onEditLocallyJsonComplete)
         elif file_name == FileNames.FILE_SCRIPT_TEXT or file_name == FileNames.FILE_SCRIPT_BACK_TEXT:
-            GogogoEditor().show(file_path=path, json_str=file2String(path), callback=onEditComplete)
+            GogogoEditor().show(file_path=path, text=file2String(path), callback=onGogogoScriptEditComplete)
             pass
         else:
             if file_name.count("png") > 0:
                 pass
             else:
-                SimpleEditor().show(file_path=path, json_str=file2String(path), callback=onEditComplete)
+                SimpleEditor().show(file_path=path, text=file2String(path), callback=onEditComplete)
                 pass
             pass
         pass
@@ -247,6 +350,12 @@ def initWidgets():
     ClickListener.setOnClickListener(ui_dialog.btn_open_proj, openProject)
     # init project files
     ClickListener.setOnClickListener(ui_dialog.btn_init, initProject)
+    # 校验
+    ClickListener.setOnClickListener(ui_dialog.btn_validate, validateFiles)
+    # 导出zip
+    ClickListener.setOnClickListener(ui_dialog.btn_export_zip, exportZip)
+    # 选择zip校验
+    ClickListener.setOnClickListener(ui_dialog.btn_select_zip_validate, chooseZip2Validate)
     pass
 
 
