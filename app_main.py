@@ -2,12 +2,13 @@ import os
 import sys
 
 import PyQt5
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
 import FileNames
+import file_utils
 from main_editor import Ui_Dialog
 from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
 from view import ClickEvent, FileSelector
@@ -44,8 +45,14 @@ def openProject():
     pass
 
 
+def refreshTreeView():
+    explorerModel.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
+
+
 def initProject():
-    os.open(FileNames.FILE_LOCALLY_JSON, os.O_WRONLY)
+    if currentWorkProject is None:
+        return
+    file_utils.createNewFile(currentWorkProject + FileNames.FILE_LOCALLY_JSON)
     pass
 
 
@@ -110,14 +117,18 @@ def onTreeViewDoubleClick(qmodelIndex):
 
 
 def create_new_file(event):
-    print("-- create_new_file --")
-    print(event)
+    selectionModel = ui_dialog.treeView.currentIndex()
+    path = explorerModel.filePath(selectionModel)
+    file_path = FileSelector.openFile(path)
+    file_utils.createNewFile(file_path[0])
+    refreshTreeView()
     return True
 
 
 def delete_file(event):
-    print("-- delete_file --")
-    print(event)
+    selectionModel = ui_dialog.treeView.currentIndex()
+    path = explorerModel.filePath(selectionModel)
+    file_utils.deleteFile(path)
     return True
 
 
