@@ -248,11 +248,14 @@ def exportZip():
 
 def chooseZip2Validate():
     """
-    选择zip包进行校验
+    选择zip/文件夹 进行校验
     :return:
     """
     (path_to_zip_file, _) = FileSelector.openFile()
-    if len(path_to_zip_file) > 0 and path_to_zip_file.count(".zip") > 0:
+    (_, ext) = os.path.splitext(path_to_zip_file)
+    (_, file_name) = os.path.split(path_to_zip_file)
+    # 选择的是zip
+    if ext.count(".zip") > 0:
         (parent_dir, file_name) = os.path.split(path_to_zip_file)
         directory_to_extract_to = parent_dir + "/" + (file_name.replace(".zip", "") + "_tmp")
         # 删除旧的
@@ -262,6 +265,10 @@ def chooseZip2Validate():
             zip_ref.extractall(directory_to_extract_to)
             pass
         validate(directory_to_extract_to, validZip=True)
+    elif len(ext) == 0:
+        # 文件夹校验
+        validate(path_to_zip_file, validZip=False)
+        pass
     pass
 
 

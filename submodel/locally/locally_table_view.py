@@ -23,7 +23,12 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
+            col = index.column()
+            if col == 1 or col == len(self.header) - 1:
+                self._data[index.row()][col] = value
+                pass
+            else:
+                self._data[index.row()][col] = str(value).upper()
             return True
         return False
 
@@ -44,6 +49,9 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
                 if row_data[column] is None:
                     return ""
                 else:
+                    if column == 1 or column == len(self.header) - 1:
+                        return str(row_data[column]).upper()
+                    pass
                     return str(row_data[column])
                 pass
             pass

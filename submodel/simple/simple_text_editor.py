@@ -6,6 +6,7 @@ class SimpleEditor(BaseEditor):
 
     def __init__(self):
         super().__init__()
+        self.text = ""
         pass
 
     def show(self, file_path, text=None, callback=None):

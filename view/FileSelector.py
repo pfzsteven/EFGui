@@ -14,5 +14,4 @@ def openFile(dir):
 
 def openFile():
     fd = QtWidgets.QFileDialog()
-    fd.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
     return fd.getOpenFileName()
