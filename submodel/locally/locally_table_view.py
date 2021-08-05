@@ -13,11 +13,12 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
     def headerData(self, col, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             return self.header[col]
+        pass
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=None):
         return len(self._data)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=None):
         return len(self.header)
 
     def setData(self, index, value, role):
@@ -26,14 +27,16 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
             return True
         return False
 
-    def data(self, index, role):
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
             return
 
         row = index.row()
         column = index.column()
 
-        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole or (
+                role == (QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)):
+
             row_data = self._data[row]
             if column == 0:
                 return row_data[0]

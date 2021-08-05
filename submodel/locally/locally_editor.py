@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'locally_editor.ui'
+# Form implementation generated from reading ui file 'locally_design.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #

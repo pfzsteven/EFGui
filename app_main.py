@@ -11,7 +11,7 @@ import FileNames
 import file_utils
 from main_editor import Ui_Dialog
 from submodel.locally.subEditorGui import LocallyFileEditor, SimpleEditor, GogogoEditor
-from view import ClickEvent, FileSelector
+from view import ClickListener, FileSelector
 
 # 当前工作路径
 currentWorkProject = None
@@ -162,9 +162,9 @@ def initWidgets():
     initTreeView()
     global ui_dialog
     # open project button
-    ClickEvent.setOnClickListener(ui_dialog.btn_open_proj, openProject)
+    ClickListener.setOnClickListener(ui_dialog.btn_open_proj, openProject)
     # init project files
-    ClickEvent.setOnClickListener(ui_dialog.btn_init, initProject)
+    ClickListener.setOnClickListener(ui_dialog.btn_init, initProject)
     pass
 
 
