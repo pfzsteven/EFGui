@@ -16,6 +16,14 @@ class LocallyFileEditor(BaseEditor):
         super().__init__()
         self.version = ""
 
+    def refresh(self):
+        """
+        刷新控件
+        :return:
+        """
+        table_model.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
+        pass
+
     def accept(self):
         ui_dialog.tableView.setCurrentIndex(QModelIndex())
 
@@ -73,6 +81,23 @@ class LocallyFileEditor(BaseEditor):
         dialog.close()
         pass
 
+    def delete_row(self):
+        """
+        删除某一行数据
+        :param pos:
+        :return:
+        """
+        modelIndex = ui_dialog.tableView.currentIndex()
+        if modelIndex is None:
+            return
+        table_model.clearRowData(modelIndex)
+        self.refresh()
+        pass
+
+    def initTableView(self):
+        ui_dialog.tableView.setModel(table_model)
+        pass
+
     def show(self, file_path, text=None, callback=None):
         self.file_path = file_path
         self.callback = callback
@@ -104,8 +129,10 @@ class LocallyFileEditor(BaseEditor):
             pass
         global table_model
         table_model = LocallyTableModel(data=items)
-        ui_dialog.tableView.setModel(table_model)
+        self.initTableView()
         ui_dialog.buttonBox.accepted.connect(self.accept)
         ui_dialog.buttonBox.rejected.connect(self.reject)
+        ui_dialog.btn_delete_row.clicked.connect(self.delete_row)
         dialog.setWindowTitle(FileNames.FILE_LOCALLY_JSON)
         dialog.exec()
+        pass

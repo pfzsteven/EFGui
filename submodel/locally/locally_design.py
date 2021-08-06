@@ -23,11 +23,14 @@ class Ui_Dialog(object):
         self.tableView.setSortingEnabled(False)
         self.tableView.setObjectName("tableView")
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(140, 20, 181, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(100, 20, 181, 32))
         self.buttonBox.setAutoFillBackground(False)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName("buttonBox")
+        self.btn_delete_row = QtWidgets.QPushButton(Dialog)
+        self.btn_delete_row.setGeometry(QtCore.QRect(290, 20, 113, 32))
+        self.btn_delete_row.setObjectName("btn_delete_row")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -35,3 +38,4 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.btn_delete_row.setText(_translate("Dialog", "删除选中行"))

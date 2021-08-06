@@ -21,6 +21,11 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
     def columnCount(self, parent=None):
         return len(self.header)
 
+    def clearRowData(self, index):
+        self._data[index.row()][1] = ""
+        self._data[index.row()][2] = ""
+        self._data[index.row()][3] = ""
+
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             col = index.column()
