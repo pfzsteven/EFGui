@@ -148,7 +148,9 @@ def validateJsonFiles(filter_id_dir, array):
 
     if not FileUtils.isFileExists(script_config_json):
         array.append(file_name + "缺失文件 " + FileNames.FILE_SCRIPT_CONFIG_JSON)
-    pass
+    else:
+        if len(file2String(script_config_json)) == 0:
+            array.append(file_name + "/" + FileNames.FILE_SCRIPT_CONFIG_JSON + "不能为空，至少要{}")
 
     for file in files:
         path = filter_id_dir + "/" + file
@@ -303,9 +305,17 @@ def file2String(path, addInCache=True):
     :param addInCache:
     :return:
     """
+    cache = text_cache.get(path, None)
+    if cache is not None:
+        return cache
+    pass
     fd = os.open(path, flags=os.O_RDONLY)
     data = (os.read(fd, 100000)).decode(encoding="utf-8")
     os.close(fd)
+    if addInCache:
+        text_cache[path] = data
+        pass
+    pass
     return data
 
 

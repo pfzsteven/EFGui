@@ -67,7 +67,7 @@ class LocallyFileEditor(BaseEditor):
         pass
         if not error:
             jsonObject["item"] = items
-            new_json_str = json.dumps(jsonObject, ensure_ascii=False)
+            new_json_str = json.dumps(jsonObject, ensure_ascii=False, indent=4)
             FileUtils.writeString2File(text=new_json_str, path=self.file_path)
             if self.callback is not None:
                 self.callback(self.file_path, new_json_str)

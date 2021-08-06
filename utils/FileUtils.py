@@ -1,11 +1,11 @@
 import os
 import shutil
+from pathlib import Path
 
 
 def createNewFile(path):
-    fd = os.open(path, flags=os.O_RDWR)
-    os.write(fd, b"")
-    os.close(fd)
+    Path(path).touch()
+    pass
 
 
 def createNewDir(path):
