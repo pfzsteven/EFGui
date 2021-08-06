@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
-from main_editor import Ui_Dialog
+from main_design import Ui_Dialog
 from submodel.gogogo.gogogo_editor import GogogoEditor
 from submodel.locally.locally_editor import LocallyFileEditor
 from submodel.simple.simple_text_editor import SimpleEditor
@@ -458,6 +458,10 @@ def onTreeViewDoubleClick(qmodelIndex):
     # print("double click file ext %d" % len(ext))
 
     if file_name.count("png") > 0 or len(ext) == 0 or file_name.count(".") == 0:
+        if file_name.count("png") > 0:
+            from PIL import Image
+            img = Image.open(path)
+            img.show()
         pass
     else:
         if file_name == FileNames.FILE_LOCALLY_JSON:
@@ -466,12 +470,7 @@ def onTreeViewDoubleClick(qmodelIndex):
             GogogoEditor().show(file_path=path, text=file2String(path), callback=onGogogoScriptEditComplete)
             pass
         else:
-            if file_name.count("png") > 0:
-                pass
-            else:
-                SimpleEditor().show(file_path=path, text=file2String(path), callback=onEditComplete)
-                pass
-            pass
+            SimpleEditor().show(file_path=path, text=file2String(path), callback=onEditComplete)
         pass
 
 
