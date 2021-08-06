@@ -1,7 +1,7 @@
 # gogogo 脚本编辑
 from PyQt5.QtWidgets import QDialog
 
-from submodel.gogogo.gogogo import Ui_Form
+from submodel.gogogo.gogogo_design import Ui_Form
 from submodel.interfaces import BaseEditor
 from utils import FileUtils
 

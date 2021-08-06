@@ -10,8 +10,8 @@ from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QMenu
 
 from main_editor import Ui_Dialog
-from submodel.gogogo.gogogo_editor_gui import GogogoEditor
-from submodel.locally.locally_editor_gui import LocallyFileEditor
+from submodel.gogogo.gogogo_editor import GogogoEditor
+from submodel.locally.locally_editor import LocallyFileEditor
 from submodel.simple.simple_text_editor import SimpleEditor
 from utils import FileUtils, FileNames, ToastUtils
 from view import ClickListener, FileSelector
