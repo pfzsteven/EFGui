@@ -36,15 +36,21 @@ class LocallyFileEditor(BaseEditor):
         jsonObject["version"] = self.version
         items = []
         error = False
+        filter_ids = []
         for row in range(0, table_model.rowCount()):
-            item = {}
             f_id = str(table_model.data(table_model.index(row, 1),
                                         role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
+            if filter_ids.count(f_id):
+                error = True
+                break
+                pass
+            filter_ids.append(f_id)
             f_name = str(table_model.data(table_model.index(row, 2),
                                           role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
             makeup_id = str(table_model.data(table_model.index(row, 3),
                                              role=(QtCore.Qt.DisplayRole or QtCore.Qt.EditRole)))
 
+            item = {}
             if len(f_id) > 0 and len(f_name) > 0:
                 item["id"] = f_id.upper()
                 item["name"] = f_name
@@ -55,14 +61,11 @@ class LocallyFileEditor(BaseEditor):
                     item["makeup_id"] = makeup_id.upper()
                     pass
                 pass
+                # 合法数据
+                items.append(item)
             elif len(f_id) > 0 or len(f_name) > 0:
                 error = True
                 break
-            else:
-                break
-
-            pass
-            items.append(item)
             pass
         pass
         if not error:
@@ -74,7 +77,7 @@ class LocallyFileEditor(BaseEditor):
             dialog.close()
             pass
         else:
-            ToastUtils.warn(title="提示", msg="滤镜ID和滤镜名称均为必填项")
+            ToastUtils.warn(title="提示", msg="规则:滤镜ID不能重复,且滤镜名称均为必填项")
         pass
 
     def reject(self):

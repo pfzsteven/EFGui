@@ -253,16 +253,31 @@ def exportZip():
             FileUtils.createNewDir(save_dir)
             pass
         pass
-        zip_file_path = save_dir + "/Filter.zip"
 
-        if not FileUtils.isFileExists(zip_file_path):
-            FileUtils.createNewFile(zip_file_path)
+        # 拷贝工程
+        filter_dir = save_dir + "/Filter"
+        if FileUtils.isFileExists(filter_dir):
+            FileUtils.deleteDir(filter_dir)
             pass
         pass
+        FileUtils.createNewDir(filter_dir)
+
+        FileUtils.copytree(currentWorkProject, filter_dir)
+
+        zip_file_path = save_dir + "/Filter.zip"
+
+        if FileUtils.isFileExists(zip_file_path):
+            FileUtils.deleteFile(zip_file_path)
+            pass
+        pass
+        FileUtils.createNewFile(zip_file_path)
+
         zipf = zipfile.ZipFile(zip_file_path, 'w',
                                zipfile.ZIP_DEFLATED)
-        FileUtils.zipdir(currentWorkProject, zipf)
+        FileUtils.zipdir(filter_dir, zipf)
         zipf.close()
+        # 删除临时文件夹
+        FileUtils.deleteDir(filter_dir)
         ToastUtils.info(title="成功提示", msg="导出zip成功!路径(" + zip_file_path + ")")
     pass
 
@@ -286,6 +301,8 @@ def chooseZip2Validate():
             zip_ref.extractall(directory_to_extract_to)
             pass
         validate(directory_to_extract_to, validZip=True)
+        # 删除临时文件
+        FileUtils.deleteFile(directory_to_extract_to)
     elif len(ext) == 0:
         # 文件夹校验
         validate(path_to_zip_file, validZip=False)
