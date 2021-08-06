@@ -1,11 +1,11 @@
 import os
 import shutil
-from pathlib import Path
 
 
 def createNewFile(path):
-    file = Path(path)
-    file.touch()
+    fd = os.open(path, flags=os.O_RDWR)
+    os.write(fd, b"")
+    os.close(fd)
 
 
 def createNewDir(path):
@@ -36,6 +36,6 @@ def deleteFile(path):
 
 
 def writeString2File(path, text):
-    file = open(path, mode='w+')
-    file.write(text)
-    file.close()
+    fd = os.open(path, flags=os.O_RDWR)
+    os.write(fd, bytes(text, encoding='utf-8'))
+    os.close(fd)

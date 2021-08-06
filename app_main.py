@@ -30,12 +30,12 @@ def openProject():
     # 展示文件弹窗
     global currentWorkProject
     currentWorkProject = FileSelector.openDirectory()
+
     if len(currentWorkProject) == 0:
         return
     if not currentWorkProject.endswith("/"):
         currentWorkProject = currentWorkProject + "/"
         pass
-    print("currentWorkProject = %s" % currentWorkProject)
 
     global explorerModel
     explorerModel = QtWidgets.QFileSystemModel()
@@ -51,10 +51,9 @@ def openProject():
 
 
 def checkLocallyJson():
-    if not os.path.exists(currentWorkProject):
-        return
     locally_json_path = currentWorkProject + FileNames.FILE_LOCALLY_JSON
     new_string = file2String(locally_json_path)
+
     # 检查文件夹完整性
     if len(new_string) > 0:
         j = json.loads(new_string)
@@ -64,7 +63,7 @@ def checkLocallyJson():
             # 滤镜id
             filter_id = item["id"]
             filterIds.append(filter_id)
-            exists = os.path.exists(currentWorkProject + filter_id)
+            exists = FileUtils.isFileExists(currentWorkProject + filter_id)
             if exists is False:
                 # 创建新滤镜文件夹
                 dir_path = currentWorkProject + filter_id
@@ -76,8 +75,6 @@ def checkLocallyJson():
                 FileUtils.createNewFile(dir_path + "/" + FileNames.FILE_CONFIG_JSON)
                 pass
             pass
-        print("checkLocallyJson ")
-        print(filterIds)
 
         # 根目录
         sub_files = os.listdir(currentWorkProject)
@@ -160,7 +157,6 @@ def validateJsonFiles(filter_id_dir, array):
         try:
             json.loads(json_string)
         except Exception as e:
-            print(e)
             array.append(file_name + "/" + j_file_name + " 发生json错误")
             pass
 
@@ -173,7 +169,6 @@ def searchLocallyParentDir(parent):
     """
     locally_json_file = parent + "/" + FileNames.FILE_LOCALLY_JSON
     if FileUtils.isFileExists(locally_json_file):
-        print("yes , i find it #1. return %s" % parent)
         return parent
     result = None
     for sub_file in os.listdir(parent):
@@ -184,7 +179,6 @@ def searchLocallyParentDir(parent):
         else:
             if sub_file == FileNames.FILE_LOCALLY_JSON:
                 result = parent
-                print("yes , i find it #2. return %s" % parent)
         if result is not None:
             break
     return result
@@ -309,16 +303,9 @@ def file2String(path, addInCache=True):
     :param addInCache:
     :return:
     """
-    cache = text_cache.get(path, None)
-    if cache is not None:
-        return cache
-    with open(path) as f:
-        data = f.read()
-        f.close()
-        pass
-    if addInCache:
-        text_cache[path] = data
-        pass
+    fd = os.open(path, flags=os.O_RDONLY)
+    data = (os.read(fd, 100000)).decode(encoding="utf-8")
+    os.close(fd)
     return data
 
 
@@ -402,8 +389,6 @@ def onGogogoScriptEditComplete(file_path, new_string, tube_gen_checked, tube_dev
     text_cache[file_path] = new_string
     showText(new_string)
     (parent_path, file_name) = os.path.split(file_path)
-
-    print("onGogogoScriptEditComplete %s " % parent_path)
 
     # 创建 script_config.json文件
     createScriptConfig(parent_path, tube_gen_checked[0] or tube_gen_checked[2])
