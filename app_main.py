@@ -247,7 +247,8 @@ def exportZip():
     success = validateCurrentProject()
     if success:
         save_dir = FileSelector.openSaveDirectory()[0]
-        if save_dir == "/":
+        if save_dir == "/" or save_dir == "":
+            # 取消
             return
         if not FileUtils.isFileExists(save_dir):
             FileUtils.createNewDir(save_dir)
