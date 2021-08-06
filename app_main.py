@@ -253,7 +253,7 @@ def exportZip():
             FileUtils.createNewDir(save_dir)
             pass
         pass
-        zip_file_path = save_dir + "/" + 'DocumentTest.zip'
+        zip_file_path = save_dir + "/Filter.zip"
 
         if not FileUtils.isFileExists(zip_file_path):
             FileUtils.createNewFile(zip_file_path)
