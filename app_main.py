@@ -76,6 +76,9 @@ def checkLocallyJson():
                 FileUtils.createNewFile(dir_path + "/" + FileNames.FILE_CONFIG_JSON)
                 pass
             pass
+        print("checkLocallyJson ")
+        print(filterIds)
+
         # 根目录
         sub_files = os.listdir(currentWorkProject)
         to_delete_files = []
@@ -92,11 +95,10 @@ def checkLocallyJson():
                 pass
             pass
         pass
-        # print("to delete invalid dirs %d " % len(to_delete_files))
-        # print("filterIds remains count:%d " % (len(filterIds)))
-        for delete_path in to_delete_files:
-            # print("to delete file %s" % delete_path)
-            FileUtils.deleteFile(delete_path)
+        for delete_file_name in to_delete_files:
+            if re.search("^F\\d+$", delete_file_name):
+                FileUtils.deleteDir(currentWorkProject + "/" + delete_file_name)
+                pass
             pass
         pass
     # 刷新控件

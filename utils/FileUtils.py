@@ -17,6 +17,10 @@ def isFileExists(path):
     return os.path.exists(path)
 
 
+def deleteDir(path):
+    shutil.rmtree(path)
+
+
 def deleteFile(path):
     if os.path.exists(path):
         # 判断是否为文件夹
