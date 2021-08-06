@@ -36,6 +36,24 @@ def deleteFile(path):
 
 
 def writeString2File(path, text):
-    fd = os.open(path, flags=os.O_RDWR)
+    deleteFile(path)
+    createNewFile(path)
+    fd = os.open(path, flags=os.O_WRONLY)
     os.write(fd, bytes(text, encoding='utf-8'))
     os.close(fd)
+
+
+def getFileName(path):
+    (_, file_name) = os.path.split(path)
+    return file_name
+
+
+def zipdir(path, ziph):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file),
+                       os.path.relpath(os.path.join(root, file),
+                                       os.path.join(path, '..')))
+            pass
+        pass
+    pass

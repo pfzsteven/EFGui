@@ -3,6 +3,7 @@ import ntpath
 import os
 import re
 import sys
+import zipfile
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
@@ -53,7 +54,6 @@ def openProject():
 def checkLocallyJson():
     locally_json_path = currentWorkProject + FileNames.FILE_LOCALLY_JSON
     new_string = file2String(locally_json_path)
-
     # 检查文件夹完整性
     if len(new_string) > 0:
         j = json.loads(new_string)
@@ -238,9 +238,32 @@ def exportZip():
     导出为zip包
     :return:
     """
+    if currentWorkProject is None:
+        ToastUtils.warn('错误提示', "请先选择一个工程")
+        return
+    if not FileUtils.isFileExists(currentWorkProject):
+        ToastUtils.warn('错误提示', "工程文件已丢失")
+        return
     success = validateCurrentProject()
     if success:
+        save_dir = FileSelector.openSaveDirectory()[0]
+        if save_dir == "/":
+            return
+        if not FileUtils.isFileExists(save_dir):
+            FileUtils.createNewDir(save_dir)
+            pass
         pass
+        zip_file_path = save_dir + "/" + 'DocumentTest.zip'
+
+        if not FileUtils.isFileExists(zip_file_path):
+            FileUtils.createNewFile(zip_file_path)
+            pass
+        pass
+        zipf = zipfile.ZipFile(zip_file_path, 'w',
+                               zipfile.ZIP_DEFLATED)
+        FileUtils.zipdir(currentWorkProject, zipf)
+        zipf.close()
+        ToastUtils.info(title="成功提示", msg="导出zip成功!路径(" + zip_file_path + ")")
     pass
 
 
@@ -249,7 +272,7 @@ def chooseZip2Validate():
     选择zip/文件夹 进行校验
     :return:
     """
-    (path_to_zip_file, _) = FileSelector.openFile()
+    (path_to_zip_file, _) = FileSelector.openAnyFile()
     (_, ext) = os.path.splitext(path_to_zip_file)
     (_, file_name) = os.path.split(path_to_zip_file)
     # 选择的是zip

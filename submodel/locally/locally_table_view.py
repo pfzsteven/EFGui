@@ -30,10 +30,10 @@ class LocallyTableModel(QtCore.QAbstractTableModel):
         if role == Qt.EditRole:
             col = index.column()
             if col == 1 or col == len(self.header) - 1:
-                self._data[index.row()][col] = value
+                self._data[index.row()][col] = str(value).upper()
                 pass
             else:
-                self._data[index.row()][col] = str(value).upper()
+                self._data[index.row()][col] = value
             return True
         return False
 
