@@ -94,7 +94,7 @@ def checkLocallyJson():
         pass
         for delete_file_name in to_delete_files:
             if re.search("^F\\d+$", delete_file_name):
-                FileUtils.deleteDir(currentWorkProject + "/" + delete_file_name)
+                FileUtils.deleteDir(currentWorkProject + delete_file_name)
                 pass
             pass
         pass
@@ -233,6 +233,50 @@ def validate(dir, validZip=False):
     return False
 
 
+def exportEveryFilters2Zip():
+    """
+    分别导出zip
+    :return:
+    """
+    if currentWorkProject is None:
+        ToastUtils.warn('错误提示', "请先选择一个工程")
+        return
+    if not FileUtils.isFileExists(currentWorkProject):
+        ToastUtils.warn('错误提示', "工程文件已丢失")
+        return
+    success = validateCurrentProject()
+    if success:
+        save_dir = currentWorkProject + "output"
+        if not FileUtils.isFileExists(save_dir):
+            FileUtils.createNewDir(save_dir)
+            pass
+        pass
+        children = os.listdir(currentWorkProject)
+        for f_path in children:
+            (_, ext) = os.path.splitext(f_path)
+            if len(ext) == 0:
+                # 文件夹名称
+                dir_name = ntpath.basename(f_path)
+                if dir_name == "output":
+                    continue
+                    pass
+                pass
+                zip_file_path = save_dir + "/" + dir_name + ".zip"
+
+                if FileUtils.isFileExists(zip_file_path):
+                    FileUtils.deleteFile(zip_file_path)
+                    pass
+                FileUtils.createNewFile(zip_file_path)
+                zipf = zipfile.ZipFile(zip_file_path, 'w',
+                                       zipfile.ZIP_DEFLATED)
+                FileUtils.zipdir(currentWorkProject + f_path, zipf)
+                zipf.close()
+                print("export %s success !" % zip_file_path)
+            pass
+        ToastUtils.info(title="成功提示", msg="批量导出zip完成!路径(" + save_dir + ")")
+    pass
+
+
 def exportZip():
     """
     导出为zip包
@@ -246,10 +290,7 @@ def exportZip():
         return
     success = validateCurrentProject()
     if success:
-        save_dir = FileSelector.openSaveDirectory()[0]
-        if save_dir == "/" or save_dir == "":
-            # 取消
-            return
+        save_dir = currentWorkProject + "output"
         if not FileUtils.isFileExists(save_dir):
             FileUtils.createNewDir(save_dir)
             pass
@@ -590,6 +631,8 @@ def initWidgets():
     ClickListener.setOnClickListener(ui_dialog.btn_export_zip, exportZip)
     # 选择zip校验
     ClickListener.setOnClickListener(ui_dialog.btn_select_zip_validate, chooseZip2Validate)
+    # 导出每个zip
+    ClickListener.setOnClickListener(ui_dialog.btn_export_everyone, exportEveryFilters2Zip)
     pass
 
 
