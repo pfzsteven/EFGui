@@ -1,0 +1,10 @@
+# 简介
+
+Python+Qt 制作效率工具，方便效果设计师在打开/导出 滤镜zip包时，可以立即检测内容是否合法等。大家可以修改python源码进行定制处理。
+
+# 示意图
+
+![image2021-8-6_10-8-54](https://user-images.githubusercontent.com/4396725/149645048-b5ce8088-7512-4ea8-958b-04afd566a1e5.png)
+
+
+![image2021-8-6_10-8-45](https://user-images.githubusercontent.com/4396725/149645052-6188e3f2-9dac-4f2a-95af-23238428ded5.png)
