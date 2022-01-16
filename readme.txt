@@ -1,6 +1,6 @@
+# 简介
 
-1. cd current_project_path
+Python+Qt 制作效率工具，方便效果设计师在打开/导出 滤镜zip包时，可以立即检测内容是否合法等。大家可以修改python源码进行定制处理。
 
-2. run command: sudo py2applet --make-setup app_main.py
+# 示意图
 
-3. python3 setup.py py2app
